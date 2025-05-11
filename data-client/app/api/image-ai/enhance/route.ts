@@ -18,9 +18,6 @@ export async function POST(request: NextRequest) {
     }
     const webflow = new WebflowClient({ accessToken });
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return NextResponse.json({ message: "Enhanced image" }, { status: 200 });
-
     // Parse request body
     const { message, selectedImage } = await request.json();
     const asset = await webflow.assets.get(selectedImage);

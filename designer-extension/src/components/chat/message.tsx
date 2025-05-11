@@ -2,14 +2,13 @@ import {
   Box,
   Paper,
   Typography,
-  Avatar,
   Button,
   CircularProgress,
-  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { useAcceptImage } from "./hooks/useAcceptImage";
-import { Message } from "./hooks/useChat";
+import { Message } from "./context/ChatContext";
+import { useChat } from "./hooks/useChat";
 
 type ChatMessageProps = {
   message: Message;
@@ -17,45 +16,41 @@ type ChatMessageProps = {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
-  const theme = useTheme();
-  const { isCreatingAsset, createAssetFromImage } = useAcceptImage();
-  const [isDeclined, setIsDeclined] = useState(false);
-  const [isAccepted, setIsAccepted] = useState(false);
+  const { createAssetFromImage } = useAcceptImage();
+  const { updateMessageImageStatus } = useChat();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAccept = async () => {
     if (message.enhancedImageUrl) {
-      await createAssetFromImage(message.enhancedImageUrl);
-      setIsAccepted(true);
+      setIsProcessing(true);
+      try {
+        await createAssetFromImage(message.enhancedImageUrl);
+        updateMessageImageStatus(message.id, "accepted");
+      } catch (error) {
+        console.error("Error accepting image:", error);
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
   const handleDecline = () => {
-    setIsDeclined(true);
+    updateMessageImageStatus(message.id, "declined");
   };
+
+  // Check if the message has an enhanced image that's pending decision
+  const hasPendingImage =
+    message.enhancedImageUrl && message.imageStatus === "pending";
+  const isAccepted = message.imageStatus === "accepted";
+  const isDeclined = message.imageStatus === "declined";
 
   return (
     <Box
       sx={{
         display: "flex",
         justifyContent: isUser ? "flex-end" : "flex-start",
-        mb: 1,
       }}
     >
-      {!isUser && (
-        <Avatar
-          sx={{
-            width: 32,
-            height: 32,
-            mr: 1,
-            bgcolor: theme.palette.primary.main,
-            alignSelf: "flex-end",
-            display: { xs: "none", sm: "flex" },
-          }}
-        >
-          AI
-        </Avatar>
-      )}
-
       <Paper
         elevation={0}
         sx={{
@@ -71,17 +66,32 @@ export function ChatMessage({ message }: ChatMessageProps) {
         }}
       >
         {isDeclined ? (
-          <Typography
-            variant="body1"
-            sx={{
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-              fontSize: "0.95rem",
-              fontStyle: "italic",
-            }}
-          >
-            Declined
-          </Typography>
+          <>
+            <Typography
+              variant="body1"
+              sx={{
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                fontSize: "0.95rem",
+                fontStyle: "italic",
+              }}
+            >
+              {message.content}
+            </Typography>
+            {message.enhancedImageUrl && (
+              <Typography
+                variant="body2"
+                sx={{
+                  mt: 1,
+                  color: "error.main",
+                  fontStyle: "italic",
+                  fontSize: "0.85rem",
+                }}
+              >
+                Image enhancement was declined
+              </Typography>
+            )}
+          </>
         ) : (
           <>
             {message.images && message.images.length > 0 && (
@@ -134,6 +144,18 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   }}
                 >
                   Enhanced Image:
+                  {isAccepted && (
+                    <Box
+                      component="span"
+                      sx={{
+                        ml: 1,
+                        color: "success.main",
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      (Accepted)
+                    </Box>
+                  )}
                 </Typography>
                 <Box
                   sx={{
@@ -154,8 +176,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   />
                 </Box>
 
-                {/* Accept and Decline buttons - only show if not accepted */}
-                {!isAccepted && (
+                {/* Accept and Decline buttons - only show if pending */}
+                {hasPendingImage && (
                   <Box
                     sx={{
                       display: "flex",
@@ -169,10 +191,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
                       color="primary"
                       size="small"
                       onClick={handleAccept}
-                      disabled={isCreatingAsset}
+                      disabled={isProcessing}
                       sx={{ flex: 1 }}
                     >
-                      {isCreatingAsset ? (
+                      {isProcessing ? (
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <CircularProgress
                             size={16}
@@ -190,7 +212,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                       color="error"
                       size="small"
                       onClick={handleDecline}
-                      disabled={isCreatingAsset}
+                      disabled={isProcessing}
                       sx={{ flex: 1 }}
                     >
                       Decline
@@ -218,21 +240,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
           })}
         </Typography>
       </Paper>
-
-      {isUser && (
-        <Avatar
-          sx={{
-            width: 32,
-            height: 32,
-            ml: 1,
-            bgcolor: theme.palette.secondary.main,
-            alignSelf: "flex-end",
-            display: { xs: "none", sm: "flex" },
-          }}
-        >
-          You
-        </Avatar>
-      )}
     </Box>
   );
 }

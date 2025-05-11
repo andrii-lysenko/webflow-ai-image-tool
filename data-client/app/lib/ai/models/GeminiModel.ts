@@ -27,23 +27,7 @@ export class GeminiModel implements AIModel {
     return response.text || "";
   }
 
-  async generateWithImage(prompt: string, image: AIImage): Promise<any> {
-    try {
-      const contents = [{ text: prompt }, { inlineData: image }];
-
-      const response = await this.ai.models.generateContent({
-        model: this.model,
-        contents: contents,
-      });
-
-      return response.text || "";
-    } catch (error) {
-      console.error("Error in generateWithImage:", error);
-      throw error;
-    }
-  }
-
-  async generateImageFromImage(
+  async generateWithImage(
     prompt: string,
     image?: AIImage
   ): Promise<{ text: string; imageData?: string }> {

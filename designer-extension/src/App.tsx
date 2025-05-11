@@ -9,16 +9,25 @@ import { theme } from "./components/theme";
 import "./App.css";
 import { Chat } from "./components/chat";
 import { DevTools } from "./components/dev-tools";
+import { ChatProvider } from "./components/chat/context/ChatContext";
 
 /**
- * App.tsx serves as the main entry point and demonstrates:
- * 1. Authentication flow with Webflow's Designer and Data APIs
- * 2. Data fetching patterns using React Query
- * 3. State management for user sessions
- * 4. Development tools for testing
+ * Main App component that handles routing and global state
  */
+function App() {
+  return (
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <AppContent />
+      </ThemeProvider>
+    </BrowserRouter>
+  );
+}
 
-// This is the main App Component. It handles the initial setup and rendering of the Dashboard.
+/**
+ * Main app content that requires access to the Router context
+ * and manages authentication state
+ */
 function AppContent() {
   const { sessionToken, exchangeAndVerifyIdToken, logout } = useAuth();
 
@@ -61,53 +70,49 @@ function AppContent() {
 
   // Render the app
   return (
-    <BrowserRouter>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-        }}
-      >
-        <Navigation />
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                // If the user is authenticated, render the dashboard
-                sessionToken ? (
-                  <Chat sessionToken={sessionToken} mode="enhance" />
-                ) : (
-                  <AuthScreen onAuth={() => {}} />
-                )
-              }
-            />
-            <Route
-              path="/generate"
-              element={
-                sessionToken ? (
-                  <Chat sessionToken={sessionToken} mode="generate" />
-                ) : (
-                  <AuthScreen onAuth={() => {}} />
-                )
-              }
-            />
-            <Route path="/custom-code" element={<></>} />
-            <Route path="/dev-tools" element={<DevTools logout={logout} />} />
-          </Routes>
-        </Box>
+    <Box className="app-container">
+      <Navigation />
+      <Box className="content-container">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              // If the user is authenticated, render the dashboard
+              sessionToken ? (
+                <ChatProvider sessionToken={sessionToken}>
+                  <Chat mode="enhance" />
+                </ChatProvider>
+              ) : (
+                <AuthScreen onAuth={() => {}} />
+              )
+            }
+          />
+          <Route
+            path="/generate"
+            element={
+              sessionToken ? (
+                <ChatProvider sessionToken={sessionToken}>
+                  <Chat mode="generate" />
+                </ChatProvider>
+              ) : (
+                <AuthScreen onAuth={() => {}} />
+              )
+            }
+          />
+          {/* Developer tools route */}
+          <Route
+            path="/dev-tools"
+            element={
+              sessionToken ? (
+                <DevTools logout={logout} />
+              ) : (
+                <AuthScreen onAuth={() => {}} />
+              )
+            }
+          />
+        </Routes>
       </Box>
-    </BrowserRouter>
-  );
-}
-
-function App() {
-  return (
-    <ThemeProvider theme={theme}>
-      <AppContent />
-    </ThemeProvider>
+    </Box>
   );
 }
 

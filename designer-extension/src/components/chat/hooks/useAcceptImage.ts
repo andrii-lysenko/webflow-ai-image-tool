@@ -17,9 +17,6 @@ export const useAcceptImage = () => {
         type: "image/png",
       });
 
-      // Create and upload the asset to webflow
-      // Assuming the webflow API is available in the global scope or injected elsewhere
-      const webflow = (window as any).webflow;
       const asset = await webflow.createAsset(file);
       console.log("Asset created:", asset);
 

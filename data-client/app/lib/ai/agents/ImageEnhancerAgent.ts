@@ -9,7 +9,7 @@ interface ImageGeneratorResponse {
 
 function getPrompt(query: string) {
   return `
-    Keep the image as close to the original as possible and enhance with the following prompt: ${query}
+    Using original image, enhance with the following prompt: ${query}
   `;
 }
 
@@ -32,12 +32,9 @@ export class ImageEnhancerAgent implements Agent {
         : undefined;
 
       const prompt = getPrompt(query);
-      const response = await this.model.generateImageFromImage(prompt, image);
+      const response = await this.model.generateWithImage(prompt, image);
 
-      return {
-        text: response.text || "Here's your generated image.",
-        imageData: response.imageData,
-      };
+      return response;
     } catch (error) {
       console.error("Error in ImageGeneratorAgent:", error);
 

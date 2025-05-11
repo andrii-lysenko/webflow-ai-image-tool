@@ -1,26 +1,20 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { useChat } from "./hooks/useChat";
 import { ImageIcon, SendIcon } from "./icons";
 import { EmptyStateMessage } from "./empty-message";
 import { ImagePreview } from "./image-preview";
 import { ChatMessage } from "./message";
-import {
-  Paper,
-  Box,
-  IconButton,
-  TextField,
-  CircularProgress,
-} from "@mui/material";
+import { Paper, Box, IconButton, TextField } from "@mui/material";
 import { ChatMode } from "./types";
+import { Loading } from "./loading";
+import { useChat } from "./hooks/useChat";
 
 type Props = {
-  sessionToken: string;
   mode: ChatMode;
 };
 
-export function Chat({ sessionToken, mode }: Props) {
+export function Chat({ mode }: Props) {
   const {
     messages,
     handleImageSelect,
@@ -31,10 +25,16 @@ export function Chat({ sessionToken, mode }: Props) {
     input,
     selectedImages,
     setInput,
-  } = useChat(sessionToken, mode);
+    setMode,
+    fileInputRef,
+  } = useChat();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update mode when prop changes
+  useEffect(() => {
+    setMode(mode);
+  }, [mode, setMode]);
 
   // Auto-scroll to the bottom when messages change
   useEffect(() => {
@@ -46,6 +46,9 @@ export function Chat({ sessionToken, mode }: Props) {
   };
 
   const isMessageInputEmpty = !input.trim() && selectedImages.length === 0;
+
+  // Get the current mode messages
+  const currentModeMessages = messages[mode];
 
   return (
     <Box
@@ -68,35 +71,14 @@ export function Chat({ sessionToken, mode }: Props) {
           gap: 2,
         }}
       >
-        {messages.length === 0 ? (
+        {currentModeMessages.length === 0 ? (
           <EmptyStateMessage mode={mode} />
         ) : (
           <>
-            {messages.map((message) => (
+            {currentModeMessages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
-            {isLoading && (
-              <Box
-                sx={{
-                  alignSelf: "center",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  p: 2,
-                  mt: 1,
-                }}
-              >
-                <CircularProgress
-                  size={36}
-                  thickness={4}
-                  color="primary"
-                  sx={{ mb: 1 }}
-                />
-                <Box sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
-                  Processing your request...
-                </Box>
-              </Box>
-            )}
+            {isLoading && <Loading />}
           </>
         )}
         <div ref={messagesEndRef} />

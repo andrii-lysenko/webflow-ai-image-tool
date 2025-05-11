@@ -7,6 +7,12 @@ interface ImageGeneratorResponse {
   imageData?: string; // Base64 encoded image data
 }
 
+function getPrompt(query: string) {
+  return `
+    Using reference image, generate an image based on the following prompt: ${query}
+  `;
+}
+
 export class ImageGeneratorAgent implements Agent {
   constructor(private model: AIModel) {}
 
@@ -20,12 +26,10 @@ export class ImageGeneratorAgent implements Agent {
         : undefined;
 
       // Use the AIModel implementation to generate image based on text and reference image
-      const response = await this.model.generateImageFromImage(query, image);
+      const prompt = getPrompt(query);
+      const response = await this.model.generateWithImage(prompt, image);
 
-      return {
-        text: response.text || "Here's your generated image.",
-        imageData: response.imageData,
-      };
+      return response;
     } catch (error) {
       console.error("Error in ImageGeneratorAgent:", error);
 

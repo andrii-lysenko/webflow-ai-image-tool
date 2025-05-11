@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { WebflowClient } from "webflow-api";
 import { getAgent } from "@/app/lib/ai";
 import jwt from "@/app/lib/utils/jwt";
 
@@ -9,15 +8,11 @@ export async function POST(request: NextRequest) {
     if (!accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const webflow = new WebflowClient({ accessToken });
-    // Parse request body
     const { message, images } = await request.json();
 
     if (!message) {
       throw new Error(`Message is required`);
     }
-
-    console.log(images);
 
     const agent = getAgent("imageGenerator");
 
