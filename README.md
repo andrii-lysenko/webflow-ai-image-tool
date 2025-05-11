@@ -48,6 +48,8 @@ A Webflow Hybrid App that enables users to enhance and generate images using AI 
    OPENAI_API_KEY=xxx  # For AI image processing
    ```
 
+   You can get free API requests using Google API: https://aistudio.google.com/app/apikey
+
 6. Run the application in development mode:
 
    ```bash
