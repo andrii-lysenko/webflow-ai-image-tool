@@ -1,5 +1,4 @@
 import { AIImage } from "@/app/types";
-import { getMimeType, getImageAsBase64 } from "../../utils/image";
 import { AIModel } from "../models/AIModel";
 import { Agent } from "./Agent";
 

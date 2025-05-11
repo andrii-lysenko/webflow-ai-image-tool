@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { useChat } from "./hooks/useChat";
-import { ImageIcon, SendIcon, MicrophoneIcon } from "./icons";
+import { ImageIcon, SendIcon } from "./icons";
 import { EmptyStateMessage } from "./empty-message";
 import { ImagePreview } from "./image-preview";
 import { ChatMessage } from "./message";
-import { SnakeGame } from "./snake-game";
 import {
   Paper,
   Box,
@@ -22,7 +21,6 @@ type Props = {
 };
 
 export function Chat({ sessionToken, mode }: Props) {
-  const [showSnakeGame, setShowSnakeGame] = useState(false);
   const {
     messages,
     handleImageSelect,
@@ -47,28 +45,7 @@ export function Chat({ sessionToken, mode }: Props) {
     fileInputRef.current?.click();
   };
 
-  const handleVoiceInput = () => {
-    // Placeholder for voice input functionality
-    console.log("Voice input clicked");
-  };
-
-  const handleSendWithEasterEgg = () => {
-    // Check for easter egg trigger
-    if (input.trim() === "I am tired of AI!!!") {
-      setShowSnakeGame(true);
-      setInput("");
-      return;
-    }
-
-    // Otherwise, proceed with normal send
-    handleSendMessage();
-  };
-
   const isMessageInputEmpty = !input.trim() && selectedImages.length === 0;
-
-  if (showSnakeGame) {
-    return <SnakeGame onExit={() => setShowSnakeGame(false)} />;
-  }
 
   return (
     <Box
@@ -92,7 +69,7 @@ export function Chat({ sessionToken, mode }: Props) {
         }}
       >
         {messages.length === 0 ? (
-          <EmptyStateMessage />
+          <EmptyStateMessage mode={mode} />
         ) : (
           <>
             {messages.map((message) => (
@@ -144,7 +121,7 @@ export function Chat({ sessionToken, mode }: Props) {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-          {mode === "generate" ? (
+          {mode === "generate" && (
             <IconButton
               onClick={handleAttachImage}
               color="primary"
@@ -152,15 +129,6 @@ export function Chat({ sessionToken, mode }: Props) {
               sx={{ p: 1 }}
             >
               <ImageIcon />
-            </IconButton>
-          ) : (
-            <IconButton
-              onClick={handleVoiceInput}
-              color="primary"
-              aria-label="Voice input"
-              sx={{ p: 1 }}
-            >
-              <MicrophoneIcon />
             </IconButton>
           )}
 
@@ -182,7 +150,7 @@ export function Chat({ sessionToken, mode }: Props) {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handleSendWithEasterEgg();
+                handleSendMessage();
               }
             }}
             placeholder={
@@ -200,7 +168,7 @@ export function Chat({ sessionToken, mode }: Props) {
           />
 
           <IconButton
-            onClick={handleSendWithEasterEgg}
+            onClick={handleSendMessage}
             disabled={isMessageInputEmpty || isLoading}
             color="primary"
             aria-label="Send message"
@@ -222,15 +190,7 @@ export function Chat({ sessionToken, mode }: Props) {
               },
             }}
           >
-            {isLoading ? (
-              <CircularProgress
-                size={24}
-                thickness={4}
-                sx={{ color: "grey.500" }}
-              />
-            ) : (
-              <SendIcon />
-            )}
+            <SendIcon />
           </IconButton>
         </Box>
       </Paper>

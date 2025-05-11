@@ -1,5 +1,4 @@
 import { AIImage } from "@/app/types";
-import { getMimeType, getImageAsBase64 } from "../../utils/image";
 import { AIModel } from "../models/AIModel";
 import { Agent } from "./Agent";
 
@@ -8,7 +7,13 @@ interface ImageGeneratorResponse {
   imageData?: string; // Base64 encoded image data
 }
 
-export class ImageGeneratorAgent implements Agent {
+function getPrompt(query: string) {
+  return `
+    Keep the image as close to the original as possible and enhance with the following prompt: ${query}
+  `;
+}
+
+export class ImageEnhancerAgent implements Agent {
   constructor(private model: AIModel) {}
 
   async respond(
@@ -26,8 +31,8 @@ export class ImageGeneratorAgent implements Agent {
         ? { data: images[0].data, mimeType: images[0].mimeType }
         : undefined;
 
-      // Use the AIModel implementation to generate image based on text and reference image
-      const response = await this.model.generateImageFromImage(query, image);
+      const prompt = getPrompt(query);
+      const response = await this.model.generateImageFromImage(prompt, image);
 
       return {
         text: response.text || "Here's your generated image.",

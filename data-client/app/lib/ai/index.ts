@@ -4,6 +4,7 @@ import {
   GEMINI_API_KEY,
   OPENAI_API_KEY,
 } from "../../constants/env";
+import { ImageEnhancerAgent } from "./agents/ImageEnhancerAgent";
 import { ImageGeneratorAgent } from "./agents/ImageGeneratorAgent";
 import { AIModel } from "./models/AIModel";
 import { GeminiModel } from "./models/GeminiModel";
@@ -36,7 +37,7 @@ export type AgentType = "imageEnhancer" | "imageGenerator";
 export function getAgent(type: AgentType) {
   switch (type) {
     case "imageEnhancer":
-      return new ImageGeneratorAgent(getModel());
+      return new ImageEnhancerAgent(getModel());
     case "imageGenerator":
       return new ImageGeneratorAgent(getModel());
   }
