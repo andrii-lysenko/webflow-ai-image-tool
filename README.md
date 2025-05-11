@@ -1,118 +1,122 @@
-# Hybrid App Starter
+# Webflow AI Image Tool
 
-A starter project for creating a Webflow Hybrid App that demonstrates OAuth authentication from the Webflow UI and basic Data and Designer API interactions. This project provides a simple example of how to:
+A Webflow Hybrid App that enables users to enhance and generate images using AI directly within the Webflow Designer. This application demonstrates:
 
-- [Set up a Webflow Data Client server](https://developers.webflow.com/v2.0.0/data/docs/getting-started-data-clients)
-- [Set up a Webflow Designer Extension frontend](https://developers.webflow.com/v2.0.0/designer/docs/getting-started-designer-extensions)
-- [Authenticate from the Designer Extension](https://developers.webflow.com/v2.0.0/data/docs/authenticating-users-with-id-tokens)
-- [Make Data API calls](https://developers.webflow.com/designer/reference/introduction)
-- [Make Designer API calls](https://developers.webflow.com/designer/reference/introduction)
+- Integration with the Webflow Designer Extension API
+- Building a backend Data Client for processing AI image operations
+- OAuth authentication flow for secure access to Webflow resources
+- Real-time image enhancement and generation capabilities
 
-## 🚀 Quick start
+## 🚀 Features
+
+- **Image Enhancement**: Apply AI-powered enhancements to existing images in your Webflow site
+- **Image Generation**: Create new AI-generated images based on text prompts
+- **Seamless Webflow Integration**: Works directly within the Webflow Designer interface
+- **Secure Authentication**: Uses OAuth 2.0 for secure access to Webflow resources
+
+## 🛠️ Getting Started
 
 1. Create a Webflow site if you haven't already at [webflow.com](https://webflow.com)
-2. Register your app in [your Workspace](https://developers.webflow.com/v2.0.0/data/docs/register-an-app) Be sure to add a redirect URI to `localhost:3000/api/auth/callback` and the required scopes:
-   
-   - `authorized_user: read`
-   - `sites:read` `sites:write`
-   - `custom_code:read` `custom_code:write`
+2. Register your app in [your Workspace](https://developers.webflow.com/v2.0.0/data/docs/register-an-app) with the following redirect URI and required scopes:
+
+   - Redirect URI: `localhost:3000/api/auth/callback`
+   - Required scopes:
+     - `authorized_user: read`
+     - `sites:read` `sites:write`
+     - `custom_code:read` `custom_code:write`
+     - `assets:read` `assets:write`
 
 3. Clone this repository and install the dependencies:
 
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 4. Install the Webflow CLI:
 
    ```bash
    npm install -g @webflow/cli
-   # or
-   yarn global add @webflow/cli
    ```
 
-5. Navigate to the `/data-client` folder and create a `.env` file by copying `.env.example`. Fill in your app credentials, which can be found in your Webflow Dashboard under Integrations > App Development > Your App Details:
+5. Create a `.env` file in the `/data-client` folder (copy from `.env.example`) and add your app credentials:
 
    ```env
    WEBFLOW_CLIENT_ID=xxx
    WEBFLOW_CLIENT_SECRET=xxx
    DESIGNER_EXTENSION_URI=xxx
    PORT=3000
+   OPENAI_API_KEY=xxx  # For AI image processing
    ```
 
-6. Run the Data Client and Designer Extension together as a Hybrid App. The run command will install the dependencies and start the server and the designer extension:
+6. Run the application in development mode:
 
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
-7. Install your app by navigating to `http://localhost:3000` in your web browser. This will redirect you to the Webflow Authorization page where you can authorize the app for your workspace.
+7. Navigate to `http://localhost:3000` in your browser to authorize the app with your Webflow workspace.
 
-8. Open your Webflow Site. Open the Apps panel and click on your App. When the panel opens click the "Launch Development App" button
+8. Open your Webflow site, access the Apps panel, and click on your App. Then click "Launch Development App".
 
-9. Click the Authorize button to authenticate your App and start using the Data and Designer APIs
+9. Authenticate and start using the AI image tools within the Webflow Designer.
 
-## 🛠️ Tech Stack
+## 🧰 Tech Stack
 
-- Data Client:
-  - **[Webflow SDK](https://github.com/webflow/js-webflow-api)** - Official Webflow API client
-- Designer Extension:
-  - **[Webflow Designer API](https://www.npmjs.com/package/@webflow/designer-extension-typings?activeTab=readme)** - Official Webflow Designer API client
-  - **[Vite](https://vitejs.dev/)** - Build tool for modern web development
-  - **[JWT-Decode](https://github.com/auth0/jwt-decode)** - Decode JWT tokens
-  - **[React](https://reactjs.org/)** - JavaScript library for building user interfaces
+- **Backend (Data Client)**:
 
-## 📝 Important Notes
+  - Next.js for the server-side application
+  - Webflow SDK for API integration
+  - OpenAI API for AI image processing
+  - SQLite for local data storage
 
-- This is a **development-only** example and should not be used in production
-- The database is cleared when the server stops (see `cleanup` function)
-- Access tokens are stored unencrypted - in production, you should:
-  - Encrypt sensitive data
-  - Use a proper database
-  - Implement token refresh
-  - Add error handling
-  - Add user sessions
+- **Frontend (Designer Extension)**:
+  - React with React Router for UI and routing
+  - Material UI for component styling
+  - Vite for fast development and bundling
+  - JWT authentication for secure communication
 
-## 🔍 Project Structure
+## 📁 Project Structure
 
 ```
 .
-├── data-client/                      # Backend server
+├── data-client/                   # Backend server
 │   ├── app/
-│   │   ├── api/                     # API Routes
-│   │   │   ├── auth/               # Auth endpoints
-│   │   │   └── custom-code/        # Custom code endpoints
-│   │   ├── lib/                    # Server utilities
-│   │   │   ├── controllers/        # Logic for handling requests and responses using the Webflow SDK
-│   │   └── db/                     # Database
-│   ├── .env.example                # Environment template
-│   └── package.json
+│   │   ├── api/                   # API endpoints
+│   │   │   ├── auth/             # Authentication routes
+│   │   │   └── image-ai/         # AI image processing routes
+│   │   ├── lib/                  # Server utilities
+│   │   └── types/                # TypeScript types
+│   ├── db/                       # Database files
+│   └── scripts/                  # Development scripts
 │
-├── designer-extension/              # Frontend app
+├── designer-extension/            # Frontend app
 │   ├── src/
-│   │   ├── components/             # React components
-│   │   ├── hooks/                  # Custom hooks
-│   │   ├── services/               # API services/logic
-│   │   ├── types/                  # TypeScript types
-│   │   └── App.tsx                 # Main app component
-│   ├── .env.development            # Dev environment variables
-│   └── package.json
-│└── package.json                     # Root package.json
+│   │   ├── components/           # React components
+│   │   │   ├── chat/            # Chat interface components
+│   │   │   └── dev-tools/       # Developer tools
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── services/            # API services
+│   │   └── types/               # TypeScript types
+│   └── webflow.json             # Webflow extension configuration
+│
+└── package.json                   # Root package for running both apps
 ```
+
+## 📝 Development Notes
+
+- This app uses SQLite for development data storage
+- For production, consider:
+  - Implementing proper token refresh
+  - Using a more robust database solution
+  - Adding comprehensive error handling
+  - Setting up proper user sessions
+  - Securing sensitive data
 
 ## 📚 Additional Resources
 
+- [Webflow Developer Documentation](https://developers.webflow.com/)
 - [OAuth 2.0 Implementation Guide](https://developers.webflow.com/v2.0.0/data/docs/oauth)
-- [Hybrid App Authentication](https://developers.webflow.com/v2.0.0/data/docs/authenticating-users-with-id-tokens)
-- [Available API Scopes](https://developers.webflow.com/v2.0.0/data/reference/scopes)
-
-## 🤝 Contributing
-
-Feel free to submit issues and enhancement requests!
+- [Designer Extension Documentation](https://developers.webflow.com/v2.0.0/designer/docs/getting-started-designer-extensions)
 
 ## 📄 License
 

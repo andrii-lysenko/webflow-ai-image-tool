@@ -9,7 +9,7 @@ import { theme } from "./components/theme";
 import "./App.css";
 import { Chat } from "./components/chat";
 import { DevTools } from "./components/dev-tools";
-import { ChatProvider } from "./components/chat/context/ChatContext";
+import { ChatProvider } from "./components/chat/context/chatContext";
 
 /**
  * Main App component that handles routing and global state
